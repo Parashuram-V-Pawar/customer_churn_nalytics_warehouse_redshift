@@ -4,10 +4,9 @@ import time
 
 logging.basicConfig(level=logging.INFO)
 
-WORKGROUP = None
-DATABASE = None 
+WORKGROUP = 'customer-churn-workgroup'
+DATABASE = 'customer_churn' 
 
-# create database and table in redshift
 def run_query(sql):
     client = get_redshift_client()
     response = client.execute_statement(
@@ -15,14 +14,23 @@ def run_query(sql):
         WorkgroupName=WORKGROUP,
         Sql=sql
     )
-
     query_id = response["Id"]
 
-    status = client.describe_statement(Id=query_id)
-        
-    if status["Status"] != "FINISHED":
-        raise Exception(status)
+    while True:
+        status = client.describe_statement(Id=query_id)
+        state = status["Status"]
+
+        logging.info(f"Query Status: {state}")
+
+        if state == "FINISHED":
+            break
+        elif state in ["FAILED", "ABORTED"]:
+            raise Exception(status)
+
+        time.sleep(2)
+
     print("Query executed successfully")
 
-    result = client.get_statement_result(Id=query_id)
-    return result
+    if status.get("HasResultSet"):
+        result = client.get_statement_result(Id=query_id)
+        return result
