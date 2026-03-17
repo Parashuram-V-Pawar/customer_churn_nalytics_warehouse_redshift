@@ -50,7 +50,7 @@ try:
         churn_reason VARCHAR(255)
     );
     """
-    run_query(create_telecom_customer_churn_table)
+    res = run_query(create_telecom_customer_churn_table)
     logging.info("Table creation completed...")
     logging.info("Inserting values to telecom_customer_churn table...")
     insert_into_telecom_customer_churn = '''
@@ -70,6 +70,7 @@ try:
 # Creating and inserting values to customer_churn_analytics
 # -------------------------------------------------------------------------
     logging.info("Creating customer_churn_analytics table...")
+    run_query("DROP TABLE IF EXISTS customer_churn_analytics;")
     create_customer_churn_analytics_table = '''
     CREATE TABLE customer_churn_analytics AS
     SELECT
@@ -84,7 +85,7 @@ try:
         customer_status
     FROM telecom_customer_churn;
     '''
-    run_query(create_customer_churn_analytics_table)
+    res = run_query(create_customer_churn_analytics_table)
     logging.info("Table creation completed...")
 
     # Delete staging table
@@ -96,12 +97,12 @@ try:
 # -------------------------------------------------------------------------
     logging.info("Creating zipcode_population table...")
     create_zipcode_population_table = '''
-    CREATE TABLE zipcode_population (
+    CREATE TABLE IF NOT EXISTS zipcode_population (
         zip_code VARCHAR(10),
         population INT
     );
     '''
-    run_query(create_zipcode_population_table)
+    res = run_query(create_zipcode_population_table)
     logging.info("Table creation completed...")
     logging.info("Inserting values to zipcode_population table...")
     insert_into_customer_churn_analytics = '''
@@ -121,6 +122,7 @@ try:
 # Creating analytical table churn_analytics
 # -------------------------------------------------------------------------
     logging.info("Creating churn_analytics table...")
+    run_query("DROP TABLE IF EXISTS churn_analytics;")
     create_churn_analytics_table = '''
     CREATE TABLE churn_analytics
     DISTKEY(zip_code)
