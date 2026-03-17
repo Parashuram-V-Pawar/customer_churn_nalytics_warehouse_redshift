@@ -2,7 +2,11 @@
 import os
 import logging
 from botocore.exceptions import *
-from config.s3_client_config import get_s3_client, BUCKET_NAME
+import dotenv
+from config.s3_client_config import get_s3_client
+
+dotenv.load_dotenv()
+BUCKET_NAME = os.getenv("BUCKET_NAME")
 
 logging.basicConfig(level=logging.INFO)
 
@@ -18,7 +22,7 @@ def upload_files_from_folder(local_folder="data", bucket_name=BUCKET_NAME):
         for file_name in os.listdir(local_folder):
             if not file_name.lower().endswith(".csv"):
                 continue
-            
+
             local_path = os.path.join(local_folder, file_name)
             if os.path.isfile(local_path):
                 s3_key = f"raw/{file_name}"
