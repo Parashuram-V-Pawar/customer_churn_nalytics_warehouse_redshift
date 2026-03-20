@@ -141,6 +141,7 @@ try:
     LEFT JOIN zipcode_population z
     ON c.zip_code = z.zip_code;
     '''
+    run_query(create_churn_analytics_table)
     logging.info("Table creation complete...")
 
     logging.info("Program execution completed...")
